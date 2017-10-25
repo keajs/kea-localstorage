@@ -49,7 +49,7 @@
     "babel-runtime": "^6.26.0"
   },
   "peerDependencies": {
-    "kea": ">= 0.26",
+    "kea": ">= 0.27",
     "redux-thunk": "*"
   },
   "devDependencies": {

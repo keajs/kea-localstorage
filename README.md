@@ -6,7 +6,7 @@ Perstist Kea reducers in localstorage
 
 [Read the documentation for Kea](https://kea.js.org/)
 
-# Usage
+# Installation
 
 Install via yarn or npm
 
@@ -15,59 +15,59 @@ yarn add kea-localstorage
 npm install --save kea-localstorage
 ```
 
-Import `kea-localstorage` and add it to the plugins array in your `getStore` helper. Make sure to do all of this before any calls to `kea({})` take place
+You may install the localStorage plugin either globally (automatically accessible for all logic stores) or locally (only for those you specify)..
+
+To install it globaly, use one of the following ways. Make sure to run this before any call to `kea({})` takes place.
 
 ```js
-// store.js
+// the cleanest way
 import localStoragePlugin from 'kea-localstorage'
+import { getStore } from 'kea'
 
-// activate globally
 const store = getStore({
-  plugins: [
-    localStoragePlugin
-  ]
+  plugins: [ localStoragePlugin ]
 })
 
+// another way
+import localStoragePlugin from 'kea-localstorage'
+import { activatePlugin } from 'kea'
+
+activatePlugin(localStoragePlugin)
+
+// the shortest way
+import 'kea-localstorage/install'
+```
+
+To install it locally, just add it to the `plugins` array for your logic store. Then only this logic store will have access to the functionality:
+
+```js
 // use locally
 const someLogic = kea({
-  path: () => ['scenes', 'something', 'foobar'],
+  plugins: [
+    localStoragePlugin
+  ],
+
+  // actions, reducers, etc
+})
+```
+
+# Usage
+
+To use it, make sure your logic store has a defined `path`. Then just pass `{ persist: true }` as an option to your reducer, like so:
+
+```js
+// use locally
+const someLogic = kea({
+  path: () => ['scenes', 'something', 'foobar'], // NEEDED!
 
   actions: () => ({
     change: value => ({ value })
   }),
 
   reducers: ({ actions }) => ({
-    persistedValue: [0, PropTypes.number, { localstorage: true }, {
+    persistedValue: [0, PropTypes.number, { persist: true }, {
       [actions.change]: (_, payload) => payload.value
     }]
-  }),
-
-  // if not activated globally and you only want to use it for one logic store
-  plugins: [
-    localStoragePlugin
-  ]
-})
-```
-
-If you wish to manually install the plugin without the `getStore` helper, do as follows:
-
-```js
-import { activatePlugin } from 'kea'
-import localStoragePlugin from 'kea-localstorage'
-
-activatePlugin(localStoragePlugin)
-```
-
-If you wish to only use this plugin in a few specific logic stores, add it to their respective plugins list:
-
-```js
-import { kea } from 'kea'
-import localStoragePlugin from 'kea-localstorage'
-
-const someLogic = kea({
-  // actions, reducers, ...
-  plugins: [
-    localStoragePlugin
-  ]
+  })
 })
 ```

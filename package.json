@@ -1,0 +1,87 @@
+{
+  "name": "kea-localstorage",
+  "version": "0.0.0",
+  "description": "Store reducer state in localStorage with Kea",
+  "author": "Marius Andra",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "jsnext:main": "es/index.js",
+  "esnext": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keajs/kea.git"
+  },
+  "bugs": {
+    "url": "https://github.com/keajs/kea/issues"
+  },
+  "homepage": "https://github.com/keajs/kea#readme",
+  "size-limit": [
+    {
+      "path": "lib/index.js",
+      "limit": "15 KB"
+    }
+  ],
+  "scripts": {
+    "build": "npm run lint && npm run build:cjs && npm run build:es",
+    "build:cjs": "babel src --out-dir lib",
+    "build:es": "BABEL_ENV=es babel src --out-dir es",
+    "start": "BABEL_ENV=es babel -w src --out-dir es",
+    "size": "size-limit",
+    "test": "jest",
+    "lint": "eslint src/**",
+    "prepublish": "npm run build"
+  },
+  "files": [
+    "es",
+    "lib",
+    "src"
+  ],
+  "jest": {
+    "testPathIgnorePatterns": [
+      "<rootDir>/es/",
+      "<rootDir>/lib/",
+      "<rootDir>/node_modules/",
+      "<rootDir>/src/__tests__/helper/"
+    ]
+  },
+  "dependencies": {
+    "babel-runtime": "^6.26.0"
+  },
+  "peerDependencies": {
+    "kea": ">= 0.26",
+    "redux-thunk": "*"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.0.1",
+    "babel-jest": "^21.2.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-react": "^6.24.1",
+    "enzyme": "^3.1.0",
+    "eslint": "^4.8.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-node": "^5.2.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-react": "^7.4.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "jest": "^21.2.1",
+    "jest-environment-node-debug": "^2.0.0",
+    "jsdom": "^11.3.0",
+    "kea": "^0.26.0",
+    "prop-types": "^15.6.0",
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "react-redux": "^5.0.6",
+    "react-test-renderer": "^16.0.0",
+    "redux": "^3.7.2",
+    "redux-thunk": "^2.2.0",
+    "reselect": "^3.0.1",
+    "size-limit": "^0.11.6"
+  }
+}

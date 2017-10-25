@@ -23,10 +23,12 @@
     }
   ],
   "scripts": {
-    "build": "npm run lint && npm run build:cjs && npm run build:es",
-    "build:cjs": "babel src --out-dir lib",
-    "build:es": "BABEL_ENV=es babel src --out-dir es",
-    "start": "BABEL_ENV=es babel -w src --out-dir es",
+    "build": "npm run lint && concurrently \"npm run build:cjs\" \"npm run build:es\"",
+    "build:cjs": "cross-env BABEL_ENV=cjs babel src --out-dir lib",
+    "build:es": "cross-env BABEL_ENV=es babel src --out-dir es",
+    "start": "concurrently --kill-others \"npm run start:cjs\" \"npm run start:es\"",
+    "start:cjs": "cross-env BABEL_ENV=cjs babel -w src --out-dir lib",
+    "start:es": "cross-env BABEL_ENV=es babel -w src --out-dir es",
     "size": "size-limit",
     "test": "jest",
     "lint": "eslint src/**",
@@ -45,23 +47,18 @@
       "<rootDir>/src/__tests__/helper/"
     ]
   },
-  "dependencies": {
-    "babel-runtime": "^6.26.0"
-  },
   "peerDependencies": {
-    "kea": ">= 0.27",
-    "redux-thunk": "*"
+    "kea": ">= 0.27"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.1",
     "babel-jest": "^21.2.0",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.0",
     "babel-preset-react": "^6.24.1",
+    "concurrently": "^3.5.0",
+    "cross-env": "^5.1.0",
     "enzyme": "^3.1.0",
     "eslint": "^4.8.0",
     "eslint-config-standard": "^10.2.1",
@@ -80,7 +77,6 @@
     "react-redux": "^5.0.6",
     "react-test-renderer": "^16.0.0",
     "redux": "^3.7.2",
-    "redux-thunk": "^2.2.0",
     "reselect": "^3.0.1",
     "size-limit": "^0.11.6"
   }

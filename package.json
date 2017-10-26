@@ -70,7 +70,7 @@
     "jest": "^21.2.1",
     "jest-environment-node-debug": "^2.0.0",
     "jsdom": "^11.3.0",
-    "kea": "^0.26.0",
+    "kea": "^0.27.0",
     "prop-types": "^15.6.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",

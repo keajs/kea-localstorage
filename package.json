@@ -37,7 +37,8 @@
   "files": [
     "es",
     "lib",
-    "src"
+    "src",
+    "install"
   ],
   "jest": {
     "testPathIgnorePatterns": [

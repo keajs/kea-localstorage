@@ -18,6 +18,10 @@ try {
 export default {
   name: 'localStorage',
 
+  // can be used globally and locally
+  global: true,
+  local: true,
+
   // reducerObjects is an object with the following structure:
   // { key: { reducer, value, type, options } }
   mutateReducerObjects (input, output, reducerObjects) {

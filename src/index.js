@@ -27,7 +27,7 @@ export default {
   mutateReducerObjects (input, output, reducerObjects) {
     if (hasLocalStorage && input.path) {
       Object.keys(reducerObjects).filter(key => reducerObjects[key].options && reducerObjects[key].options.persist).forEach(key => {
-        const path = output.path.join('.')
+        const path = `${output.path.join('.')}.${key}`
         const defaultValue = reducerObjects[key].value
         const defaultReducer = reducerObjects[key].reducer
 

@@ -1,55 +1,63 @@
 let storageCache = {}
-
-let hasLocalStorage = false
-let storage = {}
+let localStorageEngine
 
 try {
-  storage = window.localStorage
+  localStorageEngine = window.localStorage
 
   const x = '__storage_test__'
-  storage.setItem(x, x)
-  storage.removeItem(x)
-
-  hasLocalStorage = true
+  localStorageEngine.setItem(x, x)
+  localStorageEngine.removeItem(x)
 } catch (e) {
-  // not available
+  localStorageEngine = undefined
 }
 
-export default {
-  name: 'localStorage',
+export default (storageEngine = localStorageEngine) => ({
+  name: 'storage',
 
-  // can be used globally and locally
-  global: true,
-  local: true,
-
-  // reducerObjects is an object with the following structure:
+  // output.reducerInputs is an object with the following structure:
   // { key: { reducer, value, type, options } }
-  mutateReducerObjects (input, output, reducerObjects) {
-    if (hasLocalStorage && input.path) {
-      Object.keys(reducerObjects).filter(key => reducerObjects[key].options && reducerObjects[key].options.persist).forEach(key => {
-        const path = `${output.path.join('.')}.${key}`
-        const defaultValue = reducerObjects[key].value
-        const defaultReducer = reducerObjects[key].reducer
-
-        const value = storage[path] ? JSON.parse(storage[path]) : defaultValue
-        storageCache[path] = value
-
-        const reducer = (state = value, payload) => {
-          const result = defaultReducer(state, payload)
-          if (storageCache[path] !== result) {
-            storageCache[path] = result
-            storage[path] = JSON.stringify(result)
-          }
-          return result
-        }
-
-        reducerObjects[key].reducer = reducer
-        reducerObjects[key].value = value
-      })
+  afterCreateReducerInputs (input, output) {
+    if (!storageEngine) {
+      return
     }
+
+    const keysToPersist = Object.keys(output.reducerInputs).filter(key => output.reducerInputs[key].options && output.reducerInputs[key].options.persist)
+
+    if (Object.keys(keysToPersist).length === 0) {
+      return
+    }
+
+    if (!input.path) {
+      console.error('Logic store must have a path specified in order to persist reducer values')
+      return
+    }
+
+    output.storageEngine = storageEngine
+
+    keysToPersist.forEach(key => {
+      const reducerInput = output.reducerInputs[key]
+
+      const path = `${output.path.join('.')}.${key}`
+      const defaultReducer = reducerInput.reducer
+
+      if (typeof storageEngine[path] !== 'undefined') {
+        reducerInput.value = JSON.parse(storageEngine[path])
+      }
+
+      storageCache[path] = reducerInput.value
+
+      reducerInput.reducer = (state = reducerInput.value, payload) => {
+        const result = defaultReducer(state, payload)
+        if (storageCache[path] !== result) {
+          storageCache[path] = result
+          storageEngine[path] = JSON.stringify(result)
+        }
+        return result
+      }
+    })
   },
 
   clearCache () {
     storageCache = {}
   }
-}
+})

@@ -11,7 +11,7 @@ try {
   localStorageEngine = undefined
 }
 
-export default (storageEngine = localStorageEngine) => ({
+export const configure = (storageEngine) => ({
   name: 'localStorage',
 
   // output.reducerInputs is an object with the following structure:
@@ -61,3 +61,8 @@ export default (storageEngine = localStorageEngine) => ({
     storageCache = {}
   }
 })
+
+const plugin = configure(localStorageEngine)
+plugin.configure = configure
+
+export default plugin

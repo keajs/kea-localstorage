@@ -19,7 +19,7 @@ test('the can save to storage', () => {
   const storageEngine = {}
 
   let store = getStore({
-    plugins: [storagePlguin(storageEngine)]
+    plugins: [storagePlguin.configure(storageEngine)]
   })
 
   let logicWithStorage = kea({
@@ -62,7 +62,7 @@ test('the can save to storage', () => {
   // do it all again
 
   store = getStore({
-    plugins: [storagePlguin(storageEngine)]
+    plugins: [storagePlguin.configure(storageEngine)]
   })
 
   logicWithStorage = kea({

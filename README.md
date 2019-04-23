@@ -2,6 +2,7 @@
 
 Perstist Kea reducers in localstorage
 
+* kea-localstorage 1.0 works with kea 1.0+
 * kea-localstorage 0.1 works with kea 0.27+
 
 [Read the documentation for Kea](https://kea.js.org/)

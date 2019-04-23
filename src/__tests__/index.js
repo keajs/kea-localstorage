@@ -38,7 +38,7 @@ test('the can save to storage', () => {
   expect(logicWithStorage.storageEngine).toBe(storageEngine)
   expect(storageEngine.number).not.toBeDefined()
 
-  expect(logicWithStorage.plugins.map(p => p.name)).toEqual(['storage'])
+  expect(logicWithStorage.plugins.map(p => p.name)).toEqual(['localStorage'])
 
   let SampleComponent = ({ number }) => <div className='number'>{number}</div>
   let ConnectedComponent = logicWithStorage(SampleComponent)
@@ -81,7 +81,7 @@ test('the can save to storage', () => {
   expect(logicWithStorage.storageEngine).toBe(storageEngine)
   expect(storageEngine.number).not.toBeDefined()
 
-  expect(logicWithStorage.plugins.map(p => p.name)).toEqual(['storage'])
+  expect(logicWithStorage.plugins.map(p => p.name)).toEqual(['localStorage'])
 
   SampleComponent = ({ number }) => <div className='number'>{number}</div>
   ConnectedComponent = logicWithStorage(SampleComponent)

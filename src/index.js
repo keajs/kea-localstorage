@@ -12,7 +12,7 @@ try {
 }
 
 export default (storageEngine = localStorageEngine) => ({
-  name: 'storage',
+  name: 'localStorage',
 
   // output.reducerInputs is an object with the following structure:
   // { key: { reducer, value, type, options } }

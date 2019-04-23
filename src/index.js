@@ -16,7 +16,7 @@ export default (storageEngine = localStorageEngine) => ({
 
   // output.reducerInputs is an object with the following structure:
   // { key: { reducer, value, type, options } }
-  afterCreateReducerInputs (input, output) {
+  afterReducerInputs (input, output) {
     if (!storageEngine) {
       return
     }

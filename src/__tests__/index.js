@@ -1,5 +1,5 @@
 /* global test, expect, beforeEach */
-import { kea, resetKeaCache, getStore } from '../../vendor/kea.js'
+import { kea, resetKeaCache, getStore } from 'kea'
 import storagePlguin from '../index' // install the plugin
 
 import './helper/jsdom'

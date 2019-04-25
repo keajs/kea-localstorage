@@ -14,14 +14,14 @@ try {
 export const configure = (storageEngine) => ({
   name: 'localStorage',
 
-  // output.reducerInputs is an object with the following structure:
+  // logic.reducerInputs is an object with the following structure:
   // { key: { reducer, value, type, options } }
-  afterReducerInputs (input, output) {
+  afterReducerInputs (logic, input) {
     if (!storageEngine) {
       return
     }
 
-    const keysToPersist = Object.keys(output.reducerInputs).filter(key => output.reducerInputs[key].options && output.reducerInputs[key].options.persist)
+    const keysToPersist = Object.keys(logic.reducerInputs).filter(key => logic.reducerInputs[key].options && logic.reducerInputs[key].options.persist)
 
     if (Object.keys(keysToPersist).length === 0) {
       return
@@ -32,12 +32,12 @@ export const configure = (storageEngine) => ({
       return
     }
 
-    output.storageEngine = storageEngine
+    logic.storageEngine = storageEngine
 
     keysToPersist.forEach(key => {
-      const reducerInput = output.reducerInputs[key]
+      const reducerInput = logic.reducerInputs[key]
 
-      const path = `${output.path.join('.')}.${key}`
+      const path = `${logic.path.join('.')}.${key}`
       const defaultReducer = reducerInput.reducer
 
       if (typeof storageEngine[path] !== 'undefined') {

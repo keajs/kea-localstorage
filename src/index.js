@@ -16,12 +16,12 @@ export const configure = (storageEngine) => ({
 
   // logic.reducerInputs is an object with the following structure:
   // { key: { reducer, value, type, options } }
-  afterReducerInputs (logic, input) {
+  afterReducers (logic, input) {
     if (!storageEngine) {
       return
     }
 
-    const keysToPersist = Object.keys(logic.reducerInputs).filter(key => logic.reducerInputs[key].options && logic.reducerInputs[key].options.persist)
+    const keysToPersist = Object.keys(logic.reducerOptions).filter(key => logic.reducerOptions[key].persist)
 
     if (Object.keys(keysToPersist).length === 0) {
       return
@@ -35,18 +35,16 @@ export const configure = (storageEngine) => ({
     logic.storageEngine = storageEngine
 
     keysToPersist.forEach(key => {
-      const reducerInput = logic.reducerInputs[key]
-
       const path = `${logic.path.join('.')}.${key}`
-      const defaultReducer = reducerInput.reducer
+      const defaultReducer = logic.reducers[key]
 
       if (typeof storageEngine[path] !== 'undefined') {
-        reducerInput.value = JSON.parse(storageEngine[path])
+        logic.defaults[key] = JSON.parse(storageEngine[path])
       }
 
-      storageCache[path] = reducerInput.value
+      storageCache[path] = logic.defaults[key]
 
-      reducerInput.reducer = (state = reducerInput.value, payload) => {
+      logic.reducers[key] = (state = logic.defaults[key], payload) => {
         const result = defaultReducer(state, payload)
         if (storageCache[path] !== result) {
           storageCache[path] = result

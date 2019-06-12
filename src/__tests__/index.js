@@ -1,5 +1,5 @@
 /* global test, expect, beforeEach */
-import { kea, resetKeaCache, getStore } from 'kea'
+import { kea, resetContext, getStore } from 'kea'
 import storagePlguin from '../index' // install the plugin
 
 import './helper/jsdom'
@@ -11,16 +11,11 @@ import Adapter from 'enzyme-adapter-react-16'
 
 configure({ adapter: new Adapter() })
 
-beforeEach(() => {
-  resetKeaCache()
-})
-
-test('the can save to storage', () => {
+test('can save to storage', () => {
   const storageEngine = {}
+  resetContext({ plugins: [storagePlguin.configure(storageEngine)] })
 
-  let store = getStore({
-    plugins: [storagePlguin.configure(storageEngine)]
-  })
+  let store = getStore()
 
   let logicWithStorage = kea({
     path: () => ['scenes', 'persist', 'index'],
@@ -57,13 +52,10 @@ test('the can save to storage', () => {
 
   wrapper.unmount()
 
-  resetKeaCache()
-
   // do it all again
 
-  store = getStore({
-    plugins: [storagePlguin.configure(storageEngine)]
-  })
+  resetContext({ plugins: [storagePlguin.configure(storageEngine)] })
+  store = getStore()
 
   logicWithStorage = kea({
     path: () => ['scenes', 'persist', 'index'],

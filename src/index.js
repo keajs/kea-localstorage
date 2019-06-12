@@ -1,4 +1,5 @@
-let storageCache = {}
+import { getContext } from 'kea'
+
 let localStorageEngine
 
 try {
@@ -14,9 +15,21 @@ try {
 export const configure = (storageEngine) => ({
   name: 'localStorage',
 
-  logicSteps: {
-    // logic.reducerInputs is an object with the following structure:
-    // { key: { reducer, value, type, options } }
+  defaults: () => ({
+    storageEngine: undefined
+  }),
+
+  events: {
+    afterOpenContext (context) {
+      context.storageCache = {}
+    },
+
+    beforeCloseContext (context) {
+      context.storageCache = {}
+    }
+  },
+
+  buildSteps: {
     reducers (logic, input) {
       if (!storageEngine) {
         return
@@ -32,6 +45,8 @@ export const configure = (storageEngine) => ({
         console.error('Logic store must have a path specified in order to persist reducer values')
         return
       }
+
+      const { storageCache } = getContext()
 
       logic.storageEngine = storageEngine
 
@@ -55,10 +70,6 @@ export const configure = (storageEngine) => ({
         }
       })
     }
-  },
-
-  clearCache () {
-    storageCache = {}
   }
 })
 

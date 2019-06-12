@@ -1,4 +1,4 @@
-/* global test, expect, beforeEach */
+/* global test, expect */
 import { kea, resetContext, getStore } from 'kea'
 import storagePlguin from '../index' // install the plugin
 

@@ -1,5 +1,5 @@
 /* global test, expect */
-import { kea, resetContext, getStore } from 'kea'
+import { kea, resetContext, getContext, getStore } from 'kea'
 import storagePlguin from '../index' // install the plugin
 
 import './helper/jsdom'
@@ -33,7 +33,7 @@ test('can save to storage', () => {
   expect(logicWithStorage.storageEngine).toBe(storageEngine)
   expect(storageEngine.number).not.toBeDefined()
 
-  expect(logicWithStorage.plugins.activated.map(p => p.name)).toEqual(['core', 'localStorage'])
+  expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'localStorage'])
 
   let SampleComponent = ({ number }) => <div className='number'>{number}</div>
   let ConnectedComponent = logicWithStorage(SampleComponent)
@@ -73,7 +73,7 @@ test('can save to storage', () => {
   expect(logicWithStorage.storageEngine).toBe(storageEngine)
   expect(storageEngine.number).not.toBeDefined()
 
-  expect(logicWithStorage.plugins.activated.map(p => p.name)).toEqual(['core', 'localStorage'])
+  expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'localStorage'])
 
   SampleComponent = ({ number }) => <div className='number'>{number}</div>
   ConnectedComponent = logicWithStorage(SampleComponent)

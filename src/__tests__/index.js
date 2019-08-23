@@ -46,7 +46,7 @@ test('can save to storage', () => {
 
   expect(wrapper.find('.number').text()).toEqual('12')
 
-  store.dispatch(logicWithStorage.actions.setNumber(42))
+  logicWithStorage.actions.setNumber(42)
 
   expect(wrapper.find('.number').text()).toEqual('42')
 

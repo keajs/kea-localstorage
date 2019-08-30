@@ -15,7 +15,7 @@ try {
   // not available
 }
 
-export default {
+export default (prefix = '') => ({
   name: 'localStorage',
 
   // can be used globally and locally
@@ -27,7 +27,7 @@ export default {
   mutateReducerObjects (input, output, reducerObjects) {
     if (hasLocalStorage && input.path) {
       Object.keys(reducerObjects).filter(key => reducerObjects[key].options && reducerObjects[key].options.persist).forEach(key => {
-        const path = `${output.path.join('.')}.${key}`
+        const path = `${prefix}${output.path.join('.')}.${key}`
         const defaultValue = reducerObjects[key].value
         const defaultReducer = reducerObjects[key].reducer
 
@@ -52,4 +52,4 @@ export default {
   clearCache () {
     storageCache = {}
   }
-}
+})

@@ -77,9 +77,10 @@ const someLogic = kea({
 * prefix - you can add to all you localStorage paths some prefix. 
     > This can be useful, if you have two SPA on one domain, for example.
 
+#### To use it globally
 ```js
-// import as usual
-import localStoragePlugin from 'kea-localstorage'
+// import configure func
+import { configure as localStoragePlugin } from 'root/utils/testKea';
 import { getStore } from 'kea'
 
 // call plugin as function, and pass object with params in first arg
@@ -88,3 +89,19 @@ const store = getStore({
 })
 
 ```
+
+#### To use it locally for specific reducer
+```js
+const someLogic = kea({
+  path: () => ['scenes', 'something', 'foobar'],
+
+  reducers: ({ actions }) => ({
+    // somewhere in your kea logic reducers
+    persistedValue: [0, PropTypes.number, { persist: 'example' }, {
+      [actions.change]: (_, payload) => payload.value
+    }]
+  })
+})
+```
+
+So `persistedValue` saved not in path% `scenes.something.foobar`, but `example.scenes.something.foobar`

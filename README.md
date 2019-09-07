@@ -80,7 +80,7 @@ const someLogic = kea({
 #### To use it globally
 ```js
 // import configure func
-import { configure as localStoragePlugin } from 'root/utils/testKea';
+import { configure as localStoragePlugin } from 'kea-localstorage';
 import { getStore } from 'kea'
 
 // call plugin as function, and pass object with params in first arg

@@ -71,3 +71,20 @@ const someLogic = kea({
   })
 })
 ```
+
+# Options
+
+* prefix - you can add to all you localStorage paths some prefix. 
+    > This can be useful, if you have two SPA on one domain, for example.
+
+```js
+// import as usual
+import localStoragePlugin from 'kea-localstorage'
+import { getStore } from 'kea'
+
+// call plugin as function, and pass object with params in first arg
+const store = getStore({
+  plugins: [ localStoragePlugin({ prefix: 'example' }) ]
+})
+
+```

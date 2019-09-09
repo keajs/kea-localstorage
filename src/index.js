@@ -1,4 +1,4 @@
-import { getContext } from 'kea'
+import { getPluginContext, setPluginContext } from 'kea'
 
 let localStorageEngine
 
@@ -20,17 +20,21 @@ export const configure = (storageEngine) => ({
   }),
 
   events: {
-    afterOpenContext (context) {
-      context.storageCache = {}
+    afterPlugin () {
+      setPluginContext('localStorage', { storageCache: {} })
     },
 
     beforeCloseContext (context) {
-      context.storageCache = {}
+      setPluginContext('localStorage', { storageCache: {} })
     }
   },
 
+  buildOrder: {
+    localStorage: { after: 'reducers' }
+  },
+
   buildSteps: {
-    reducers (logic, input) {
+    localStorage (logic, input) {
       if (!storageEngine) {
         return
       }
@@ -46,7 +50,7 @@ export const configure = (storageEngine) => ({
         return
       }
 
-      const { storageCache } = getContext()
+      const { storageCache } = getPluginContext('localStorage')
 
       logic.storageEngine = storageEngine
 

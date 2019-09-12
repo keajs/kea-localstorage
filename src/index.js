@@ -58,7 +58,7 @@ export const configure = ({ prefix = '', separator = '.' } = {}) => ({
   clearCache () {
     storageCache = {}
   }
-});
+})
 
 const plugin = configure()
 

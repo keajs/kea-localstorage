@@ -34,7 +34,7 @@ test('can save to storage', () => {
 
   expect(getPluginContext('localStorage').storageEngine).toBeDefined()
   expect(getPluginContext('localStorage').storageEngine).toBe(storageEngine)
-  expect(storageEngine.number).not.toBeDefined()
+  expect(storageEngine['scenes.persist.index.number']).not.toBeDefined()
 
   expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'localStorage'])
 
@@ -77,7 +77,7 @@ test('can save to storage', () => {
 
   expect(getPluginContext('localStorage').storageEngine).toBeDefined()
   expect(getPluginContext('localStorage').storageEngine).toBe(storageEngine)
-  expect(storageEngine.number).not.toBeDefined()
+  expect(storageEngine['scenes.persist.index.number']).toBeDefined()
 
   expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'localStorage'])
 
@@ -93,4 +93,48 @@ test('can save to storage', () => {
   expect(wrapper.find('.number').text()).toEqual('42') // even if value says 12 in the logic store
 
   wrapper.unmount()
+})
+
+test('prefix and separator work', () => {
+  const storageEngine = {
+    setItem (key, value) {
+      this[key] = value
+    },
+    removeItem (key) {
+      delete this[key]
+    }
+  }
+  resetContext({
+    createStore: true,
+    plugins: [ storagePlugin({ storageEngine, prefix: 'something', separator: '_' }) ]
+  })
+
+  let logicWithStorage = kea({
+    path: () => ['scenes', 'persist', 'index'],
+    actions: () => ({
+      setNumber: number => ({ number })
+    }),
+    reducers: ({ actions }) => ({
+      number: [12, PropTypes.number, { persist: true }, {
+        [actions.setNumber]: (_, payload) => payload.number
+      }],
+      override: [22, PropTypes.number, { persist: true, prefix: 'nope', separator: '|' }, {
+        [actions.setNumber]: (_, payload) => payload.number
+      }]
+    })
+  })
+
+  expect(getPluginContext('localStorage').storageEngine).toBeDefined()
+  expect(getPluginContext('localStorage').storageEngine).toBe(storageEngine)
+
+  logicWithStorage.mount()
+  logicWithStorage.actions.setNumber(55)
+
+  const { number, override } = logicWithStorage.values
+
+  expect(number).toBe(55)
+  expect(override).toBe(55)
+
+  expect(storageEngine['something_scenes_persist_index_number']).toBe('55')
+  expect(storageEngine['nope|scenes|persist|index|override']).toBe('55')
 })

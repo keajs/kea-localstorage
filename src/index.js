@@ -49,8 +49,8 @@ const localStoragePlugin = ({ prefix = '', separator = '.', storageEngine = loca
       const { storageCache } = getPluginContext('localStorage')
 
       keysToPersist.forEach(key => {
-        const _prefix = prefix || logic.reducerOptions[key].prefix
-        const _separator = separator || logic.reducerOptions[key].separator
+        const _prefix = logic.reducerOptions[key].prefix || prefix
+        const _separator = logic.reducerOptions[key].separator || separator
 
         const path = `${_prefix ? _prefix + _separator : ''}${logic.path.join(_separator)}${_separator}${key}`
         const defaultReducer = logic.reducers[key]

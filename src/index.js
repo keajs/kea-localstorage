@@ -15,7 +15,7 @@ try {
   // not available
 }
 
-export default {
+export const configure = ({ prefix = '', separator = '.' } = {}) => ({
   name: 'localStorage',
 
   // can be used globally and locally
@@ -26,8 +26,14 @@ export default {
   // { key: { reducer, value, type, options } }
   mutateReducerObjects (input, output, reducerObjects) {
     if (hasLocalStorage && input.path) {
-      Object.keys(reducerObjects).filter(key => reducerObjects[key].options && reducerObjects[key].options.persist).forEach(key => {
-        const path = `${output.path.join('.')}.${key}`
+      Object.keys(reducerObjects).filter((key) => reducerObjects[key].options && reducerObjects[key].options.persist).forEach((key) => {
+        // if persist option is string than add it in path
+        const persist = reducerObjects[key].options.persist
+
+        const path = `${prefix && prefix + separator}${
+          typeof persist === 'string' ? persist + separator : ''
+        }${output.path.join(separator)}${separator}${key}`
+
         const defaultValue = reducerObjects[key].value
         const defaultReducer = reducerObjects[key].reducer
 
@@ -52,4 +58,8 @@ export default {
   clearCache () {
     storageCache = {}
   }
-}
+});
+
+const plugin = configure()
+
+export default plugin

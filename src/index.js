@@ -1,65 +1,77 @@
-let storageCache = {}
+import { getPluginContext, setPluginContext } from 'kea'
 
-let hasLocalStorage = false
-let storage = {}
+let localStorageEngine
 
 try {
-  storage = window.localStorage
+  localStorageEngine = window.localStorage
 
   const x = '__storage_test__'
-  storage.setItem(x, x)
-  storage.removeItem(x)
-
-  hasLocalStorage = true
+  localStorageEngine.setItem(x, x)
+  localStorageEngine.removeItem(x)
 } catch (e) {
-  // not available
+  localStorageEngine = undefined
 }
 
-export const configure = ({ prefix = '', separator = '.' } = {}) => ({
+const localStoragePlugin = ({ prefix = '', separator = '.', storageEngine = localStorageEngine } = {}) => ({
   name: 'localStorage',
 
-  // can be used globally and locally
-  global: true,
-  local: true,
+  events: {
+    afterPlugin () {
+      setPluginContext('localStorage', { storageCache: {}, storageEngine })
+    },
 
-  // reducerObjects is an object with the following structure:
-  // { key: { reducer, value, type, options } }
-  mutateReducerObjects (input, output, reducerObjects) {
-    if (hasLocalStorage && input.path) {
-      Object.keys(reducerObjects).filter((key) => reducerObjects[key].options && reducerObjects[key].options.persist).forEach((key) => {
-        // if persist option is string than add it in path
-        const persist = reducerObjects[key].options.persist
-
-        const path = `${prefix && prefix + separator}${
-          typeof persist === 'string' ? persist + separator : ''
-        }${output.path.join(separator)}${separator}${key}`
-
-        const defaultValue = reducerObjects[key].value
-        const defaultReducer = reducerObjects[key].reducer
-
-        const value = storage[path] ? JSON.parse(storage[path]) : defaultValue
-        storageCache[path] = value
-
-        const reducer = (state = value, payload) => {
-          const result = defaultReducer(state, payload)
-          if (storageCache[path] !== result) {
-            storageCache[path] = result
-            storage[path] = JSON.stringify(result)
-          }
-          return result
-        }
-
-        reducerObjects[key].reducer = reducer
-        reducerObjects[key].value = value
-      })
+    beforeCloseContext (context) {
+      setPluginContext('localStorage', { storageCache: {}, storageEngine })
     }
   },
 
-  clearCache () {
-    storageCache = {}
+  buildOrder: {
+    localStorage: { after: 'reducers' }
+  },
+
+  buildSteps: {
+    localStorage (logic, input) {
+      if (!storageEngine) {
+        return
+      }
+
+      const keysToPersist = Object.keys(logic.reducerOptions).filter(key => logic.reducerOptions[key].persist)
+
+      if (Object.keys(keysToPersist).length === 0) {
+        return
+      }
+
+      if (!input.path) {
+        console.error('Logic store must have a path specified in order to persist reducer values')
+        return
+      }
+
+      const { storageCache } = getPluginContext('localStorage')
+
+      keysToPersist.forEach(key => {
+        const _prefix = prefix || logic.reducerOptions[key].prefix
+        const _separator = separator || logic.reducerOptions[key].separator
+
+        const path = `${_prefix ? _prefix + _separator : ''}${logic.path.join(_separator)}${_separator}${key}`
+        const defaultReducer = logic.reducers[key]
+
+        if (typeof storageEngine[path] !== 'undefined') {
+          logic.defaults[key] = JSON.parse(storageEngine[path])
+        }
+
+        storageCache[path] = logic.defaults[key]
+
+        logic.reducers[key] = (state = logic.defaults[key], payload) => {
+          const result = defaultReducer(state, payload)
+          if (storageCache[path] !== result) {
+            storageCache[path] = result
+            storageEngine[path] = JSON.stringify(result)
+          }
+          return result
+        }
+      })
+    }
   }
 })
 
-const plugin = configure()
-
-export default plugin
+export default localStoragePlugin

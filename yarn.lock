@@ -3709,10 +3709,10 @@ jsx-ast-utils@^2.0.0:
   dependencies:
     array-includes "^3.0.3"
 
-kea@^1.0.0-rc.8:
-  version "1.0.0-rc.8"
-  resolved "https://registry.yarnpkg.com/kea/-/kea-1.0.0-rc.8.tgz#f817b1b65a19402d9095226b787d92bcadcf7f40"
-  integrity sha512-EbUbpQNMRtS+5F8nbh3hgwYigInApScy75EeinplX1teVNRLPZ3uPbQviTGhZQ9+a/yL33SpuFPSWpI274E0sg==
+kea@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/kea/-/kea-1.0.0.tgz#892bb4c2b0a243f1b0c05af8fefba0612b501f7d"
+  integrity sha512-FM9lCwvfsPPQHTeIk4XQfKKLBPKKcEz3cKprZwwLHzWUnf2UxdjgiRPfLB5XvrtrmyyZVFR8cIpataCZ+gO6Aw==
 
 kind-of@^3.0.2:
   version "3.0.4"

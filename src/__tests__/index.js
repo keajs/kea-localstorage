@@ -1,6 +1,6 @@
 /* global test, expect */
-import { kea, resetContext, getContext, getStore } from 'kea'
-import storagePlguin from '../index' // install the plugin
+import { kea, resetContext, getContext, getPluginContext } from 'kea'
+import storagePlugin from '../index' // install the plugin
 
 import './helper/jsdom'
 import React from 'react'
@@ -13,9 +13,12 @@ configure({ adapter: new Adapter() })
 
 test('can save to storage', () => {
   const storageEngine = {}
-  resetContext({ plugins: [storagePlguin.configure(storageEngine)] })
+  resetContext({
+    createStore: true,
+    plugins: [ storagePlugin({ storageEngine }) ]
+  })
 
-  let store = getStore()
+  let store = getContext().store
 
   let logicWithStorage = kea({
     path: () => ['scenes', 'persist', 'index'],
@@ -29,8 +32,8 @@ test('can save to storage', () => {
     })
   })
 
-  expect(logicWithStorage.storageEngine).toBeDefined()
-  expect(logicWithStorage.storageEngine).toBe(storageEngine)
+  expect(getPluginContext('localStorage').storageEngine).toBeDefined()
+  expect(getPluginContext('localStorage').storageEngine).toBe(storageEngine)
   expect(storageEngine.number).not.toBeDefined()
 
   expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'localStorage'])
@@ -54,8 +57,11 @@ test('can save to storage', () => {
 
   // do it all again
 
-  resetContext({ plugins: [storagePlguin.configure(storageEngine)] })
-  store = getStore()
+  resetContext({
+    createStore: true,
+    plugins: [ storagePlugin({ storageEngine }) ]
+  })
+  store = getContext().store
 
   logicWithStorage = kea({
     path: () => ['scenes', 'persist', 'index'],
@@ -69,8 +75,8 @@ test('can save to storage', () => {
     })
   })
 
-  expect(logicWithStorage.storageEngine).toBeDefined()
-  expect(logicWithStorage.storageEngine).toBe(storageEngine)
+  expect(getPluginContext('localStorage').storageEngine).toBeDefined()
+  expect(getPluginContext('localStorage').storageEngine).toBe(storageEngine)
   expect(storageEngine.number).not.toBeDefined()
 
   expect(getContext().plugins.activated.map(p => p.name)).toEqual(['core', 'localStorage'])

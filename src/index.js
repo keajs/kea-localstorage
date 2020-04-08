@@ -41,7 +41,7 @@ const localStoragePlugin = ({ prefix = '', separator = '.', storageEngine = loca
         return
       }
 
-      if (!input.path) {
+      if (!logic.path) {
         console.error('Logic store must have a path specified in order to persist reducer values')
         return
       }

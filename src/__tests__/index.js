@@ -138,3 +138,43 @@ test('prefix and separator work', () => {
   expect(storageEngine['something_scenes_persist_index_number']).toBe('55')
   expect(storageEngine['nope|scenes|persist|index|override']).toBe('55')
 })
+
+test('works with extended logic', () => {
+  const storageEngine = {}
+
+  resetContext({
+    createStore: true,
+    plugins: [ storagePlugin({ storageEngine }) ]
+  })
+
+  let logic = kea({
+    path: () => ['scenes', 'persist', 'index'],
+    actions: () => ({
+      setNumber: number => ({ number })
+    }),
+    reducers: ({ actions }) => ({
+      number: [12, PropTypes.number, { persist: true }, {
+        [actions.setNumber]: (_, payload) => payload.number
+      }]
+    })
+  })
+
+  logic.extend({
+    reducers: ({ actions }) => ({
+      otherNumber: [12, PropTypes.number, { persist: true }, {
+        [actions.setNumber]: (_, payload) => payload.number
+      }]
+    })
+  })
+
+  logic.mount()
+  logic.actions.setNumber(55)
+
+  const { number, otherNumber } = logic.values
+
+  expect(number).toBe(55)
+  expect(otherNumber).toBe(55)
+
+  expect(storageEngine['scenes.persist.index.number']).toBe('55')
+  expect(storageEngine['scenes.persist.index.otherNumber']).toBe('55')
+})

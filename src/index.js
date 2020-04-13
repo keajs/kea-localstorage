@@ -35,13 +35,19 @@ const localStoragePlugin = ({ prefix = '', separator = '.', storageEngine = loca
         return
       }
 
-      const keysToPersist = Object.keys(logic.reducerOptions).filter(key => logic.reducerOptions[key].persist)
+      const keysToPersist = Object.keys(logic.reducerOptions).filter(key => {
+        return logic.reducerOptions[key].persist && !(logic.cache.localStorage && logic.cache.localStorage[key])
+      })
 
       if (Object.keys(keysToPersist).length === 0) {
         return
       }
 
-      if (!input.path) {
+      if (!logic.cache.localStorage) {
+        logic.cache.localStorage = { stored: {} }
+      }
+
+      if (!input.path && logic.pathString.indexOf('kea.inline.') === 0) {
         console.error('Logic store must have a path specified in order to persist reducer values')
         return
       }
@@ -69,6 +75,7 @@ const localStoragePlugin = ({ prefix = '', separator = '.', storageEngine = loca
           }
           return result
         }
+        logic.cache.localStorage[key] = true
       })
     }
   }

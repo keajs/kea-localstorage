@@ -89,3 +89,12 @@ const someLogic = kea({
 ```
 
 Now the `persistedValue` will not be saved in `scenes.something.foobar`, but in `example_scenes_something_foobar`
+
+### Get the original default of the reducer
+
+Under the hood `kea-localstorage` overrides the `defaults` value for your reducer with whatever was
+stored in localstorage. In case you need to access the original default, it's stored here:
+
+```javascript
+logic.cache.localStorageDefaults['reducerKey']
+```

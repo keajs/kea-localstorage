@@ -47,6 +47,8 @@ test('can save to storage', () => {
     </Provider>
   )
 
+  expect(logicWithStorage.cache.localStorageDefaults.number).toBe(12)
+
   expect(wrapper.find('.number').text()).toEqual('12')
 
   logicWithStorage.actions.setNumber(42)
@@ -89,6 +91,7 @@ test('can save to storage', () => {
       <ConnectedComponent />
     </Provider>
   )
+  expect(logicWithStorage.cache.localStorageDefaults.number).toBe(12)
 
   expect(wrapper.find('.number').text()).toEqual('42') // even if value says 12 in the logic store
 

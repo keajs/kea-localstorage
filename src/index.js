@@ -44,7 +44,11 @@ const localStoragePlugin = ({ prefix = '', separator = '.', storageEngine = loca
       }
 
       if (!logic.cache.localStorage) {
-        logic.cache.localStorage = { stored: {} }
+        logic.cache.localStorage = {}
+      }
+
+      if (!logic.cache.localStorageDefaults) {
+        logic.cache.localStorageDefaults = {}
       }
 
       if (!input.path && logic.pathString.indexOf('kea.inline.') === 0) {
@@ -60,6 +64,8 @@ const localStoragePlugin = ({ prefix = '', separator = '.', storageEngine = loca
 
         const path = `${_prefix ? _prefix + _separator : ''}${logic.path.join(_separator)}${_separator}${key}`
         const defaultReducer = logic.reducers[key]
+
+        logic.cache.localStorageDefaults[key] = logic.defaults[key]
 
         if (typeof storageEngine[path] !== 'undefined') {
           logic.defaults[key] = JSON.parse(storageEngine[path])

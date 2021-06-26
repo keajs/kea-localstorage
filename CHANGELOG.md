@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 1.1.1 - 2021-06-27
+- Fix undefined default options bug
+
 ## 1.1.0 - 2021-06-26
 - Convert to TypeScript
 

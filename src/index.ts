@@ -18,7 +18,7 @@ try {
   localStorageEngine = undefined
 }
 
-export const localStoragePlugin = (pluginOptions: Partial<LocalStoragePluginOptions>): KeaPlugin => {
+export const localStoragePlugin = (pluginOptions: Partial<LocalStoragePluginOptions> = {}): KeaPlugin => {
   const prefix = pluginOptions.prefix ?? ''
   const separator = pluginOptions.separator ?? '.'
   const storageEngine = pluginOptions.storageEngine ?? localStorageEngine

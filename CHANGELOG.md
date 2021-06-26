@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 1.1.0 - 2021-06-26
+- Convert to TypeScript
+
 ## 1.0.2 - 2020-04-17
 - Added `logic.cache.localStorageDefaults[reducerKey]` to hold on to the original default of the reducer 
 - Fixed edge case where a reducer with the key `stored` would never be stored in localStorage if defined

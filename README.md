@@ -2,6 +2,7 @@
 
 Perstist Kea reducers in localstorage
 
+* kea-localstorage 1.1 works with kea 2.4+
 * kea-localstorage 1.0 works with kea 1.0+
 * kea-localstorage 0.1 works with kea 0.27+
 
@@ -19,7 +20,7 @@ npm install --save kea-localstorage
 Then add it to the context:
 
 ```js
-import localStoragePlugin from 'kea-localstorage'
+import { localStoragePlugin } from 'kea-localstorage'
 import { resetContext } from 'kea'
 
 resetContext({
@@ -52,7 +53,7 @@ const someLogic = kea({
 You may optionally configure the plugin by passing in some options:
 
 ```js
-import localStoragePlugin from 'kea-localstorage'
+import { localStoragePlugin } from 'kea-localstorage'
 import { resetContext } from 'kea'
 
 resetContext({
@@ -81,7 +82,7 @@ const someLogic = kea({
 
   reducers: ({ actions }) => ({
     // somewhere in your kea logic reducers
-    persistedValue: [0, PropTypes.number, { persist: true, prefix: 'example', separator: '_' }, {
+    persistedValue: [0, { persist: true, prefix: 'example', separator: '_' }, {
       [actions.change]: (_, payload) => payload.value
     }]
   })

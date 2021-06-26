@@ -4,5 +4,5 @@
   "main": "../lib/install.js",
   "module": "../es/install.js",
   "jsnext:main": "../es/install.js",
-  "esnext": "../src/index.js"
+  "esnext": "../src/index.ts"
 }

@@ -5,9 +5,7 @@
   "author": "Marius Andra",
   "license": "MIT",
   "main": "lib/index.js",
-  "module": "es/index.js",
-  "jsnext:main": "es/index.js",
-  "esnext": "src/index.ts",
+  "types": "lib/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/keajs/kea.git"

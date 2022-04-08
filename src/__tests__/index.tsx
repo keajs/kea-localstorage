@@ -1,5 +1,5 @@
-import { kea, resetContext, getContext, getPluginContext, useValues, Provider } from 'kea'
-import { localStoragePlugin } from '../index' // install the plugin
+import { kea, resetContext, getContext, getPluginContext, useValues, Provider, actions, path } from 'kea'
+import { localStoragePlugin, persistentReducers } from '../index' // install the plugin
 
 import React from 'react'
 import PropTypes from 'prop-types'
@@ -15,12 +15,12 @@ test('can save to storage', () => {
     plugins: [localStoragePlugin({ storageEngine })],
   })
 
-  const logicWithStorage = kea({
-    path: ['scenes', 'persist', 'index'],
-    actions: {
+  const logicWithStorage = kea([
+    path(['scenes', 'persist', 'index']),
+    actions({
       setNumber: (number) => ({ number }),
-    },
-    reducers: {
+    }),
+    persistentReducers({
       number: [
         12,
         { persist: true },
@@ -28,14 +28,14 @@ test('can save to storage', () => {
           setNumber: (_, payload) => payload.number,
         },
       ],
-    },
-  })
+    }),
+  ])
 
   expect(getPluginContext('localStorage').storageEngine).toBeDefined()
   expect(getPluginContext('localStorage').storageEngine).toBe(storageEngine)
   expect(storageEngine['scenes.persist.index.number']).not.toBeDefined()
 
-  expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'listeners', 'localStorage'])
+  expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'localStorage'])
 
   const unmount1 = logicWithStorage.mount()
 
@@ -56,12 +56,12 @@ test('can save to storage', () => {
     plugins: [localStoragePlugin({ storageEngine })],
   })
 
-  const anotherLogicWithStorage = kea({
-    path: ['scenes', 'persist', 'index'],
-    actions: {
+  const anotherLogicWithStorage = kea([
+    path(['scenes', 'persist', 'index']),
+    actions({
       setNumber: (number) => ({ number }),
-    },
-    reducers: {
+    }),
+    persistentReducers({
       number: [
         12,
         { persist: true },
@@ -69,14 +69,14 @@ test('can save to storage', () => {
           setNumber: (_, payload) => payload.number,
         },
       ],
-    },
-  })
+    }),
+  ])
 
   expect(getPluginContext('localStorage').storageEngine).toBeDefined()
   expect(getPluginContext('localStorage').storageEngine).toBe(storageEngine)
   expect(storageEngine['scenes.persist.index.number']).toBeDefined()
 
-  expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'listeners', 'localStorage'])
+  expect(getContext().plugins.activated.map((p) => p.name)).toEqual(['core', 'localStorage'])
 
   const unmount2 = anotherLogicWithStorage.mount()
 
@@ -100,28 +100,27 @@ test('prefix and separator work', () => {
     plugins: [localStoragePlugin({ storageEngine, prefix: 'something', separator: '_' })],
   })
 
-  let logicWithStorage = kea({
-    path: ['scenes', 'persist', 'index'],
-    actions: {
+  let logicWithStorage = kea([
+    path(['scenes', 'persist', 'index']),
+    actions({
       setNumber: (number) => ({ number }),
-    },
-    reducers: {
+    }),
+    persistentReducers({
       number: [
         12,
-        { persist: true },
         {
           setNumber: (_, payload) => payload.number,
         },
       ],
       override: [
         22,
-        { persist: true, prefix: 'nope', separator: '|' },
+        { prefix: 'nope', separator: '|' },
         {
           setNumber: (_, payload) => payload.number,
         },
       ],
-    },
-  })
+    }),
+  ])
 
   expect(getPluginContext('localStorage').storageEngine).toBeDefined()
   expect(getPluginContext('localStorage').storageEngine).toBe(storageEngine)
@@ -146,24 +145,23 @@ test('works with extended logic', () => {
     plugins: [localStoragePlugin({ storageEngine })],
   })
 
-  let logic = kea({
-    path: ['scenes', 'persist', 'index'],
-    actions: {
+  let logic = kea([
+    path(['scenes', 'persist', 'index']),
+    actions({
       setNumber: (number) => ({ number }),
-    },
-    reducers: {
+    }),
+    persistentReducers({
       number: [
         12,
-        { persist: true },
         {
           setNumber: (_, payload) => payload.number,
         },
       ],
-    },
-  })
+    }),
+  ])
 
-  logic.extend({
-    reducers: {
+  logic.extend([
+    persistentReducers({
       otherNumber: [
         12,
         { persist: true },
@@ -171,8 +169,8 @@ test('works with extended logic', () => {
           setNumber: (_, payload) => payload.number,
         },
       ],
-    },
-  })
+    }),
+  ] as any)
 
   logic.mount()
   logic.actions.setNumber(55)

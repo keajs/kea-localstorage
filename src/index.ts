@@ -1,4 +1,13 @@
-import { getPluginContext, KeaPlugin, setPluginContext } from 'kea'
+import {
+  reducers,
+  getPluginContext,
+  KeaPlugin,
+  Logic,
+  ReducerActions,
+  ReducerDefault,
+  setPluginContext,
+  defaults,
+} from 'kea'
 
 export interface LocalStoragePluginOptions {
   prefix: string
@@ -18,6 +27,24 @@ try {
   localStorageEngine = undefined
 }
 
+export type PersistenceOptions = {
+  persist?: true
+  prefix?: string
+  separator?: string
+}
+
+export type PersistentReducerDefinitions<L extends Logic> = {
+  [K in keyof L['reducers']]?:
+    | [
+        ReducerDefault<L['reducers'][K], L['props']>,
+        PersistenceOptions,
+        ReducerActions<L, ReturnType<L['reducers'][K]>>,
+      ]
+    | [ReducerDefault<L['reducers'][K], L['props']>, ReducerActions<L, ReturnType<L['reducers'][K]>>]
+    | [ReducerDefault<L['reducers'][K], L['props']>]
+    | ReducerActions<L, ReturnType<L['reducers'][K]>>
+}
+
 export const localStoragePlugin = (pluginOptions: Partial<LocalStoragePluginOptions> = {}): KeaPlugin => {
   const prefix = pluginOptions.prefix ?? ''
   const separator = pluginOptions.separator ?? '.'
@@ -28,74 +55,68 @@ export const localStoragePlugin = (pluginOptions: Partial<LocalStoragePluginOpti
 
     events: {
       afterPlugin() {
-        setPluginContext('localStorage', { storageCache: {}, storageEngine })
-      },
-
-      beforeCloseContext(context) {
-        setPluginContext('localStorage', { storageCache: {}, storageEngine })
-      },
-    },
-
-    buildOrder: {
-      localStorage: { after: 'reducers' },
-    },
-
-    buildSteps: {
-      localStorage(logic, input) {
-        if (!storageEngine) {
-          return
-        }
-
-        const keysToPersist = Object.keys(logic.reducerOptions).filter((key) => {
-          return logic.reducerOptions[key].persist && !logic.cache.localStorage?.[key] // we might be in logic.extend
-        })
-
-        if (Object.keys(keysToPersist).length === 0) {
-          return
-        }
-
-        if (!logic.cache.localStorage) {
-          logic.cache.localStorage = {} as Record<string, boolean>
-        }
-
-        if (!logic.cache.localStorageDefaults) {
-          logic.cache.localStorageDefaults = {}
-        }
-
-        if (!input.path && logic.pathString.indexOf('kea.logic.') === 0) {
-          console.error('Logic store must have a path specified in order to persist reducer values')
-          return
-        }
-
-        const { storageCache } = getPluginContext('localStorage')
-
-        keysToPersist.forEach((key) => {
-          const _prefix = logic.reducerOptions[key].prefix || prefix
-          const _separator = logic.reducerOptions[key].separator || separator
-
-          const path = `${_prefix ? _prefix + _separator : ''}${logic.path.join(_separator)}${_separator}${key}`
-          const defaultReducer = logic.reducers[key]
-
-          logic.cache.localStorageDefaults[key] = logic.defaults[key]
-
-          if (typeof storageEngine[path] !== 'undefined') {
-            logic.defaults[key] = JSON.parse(storageEngine[path])
-          }
-
-          storageCache[path] = logic.defaults[key]
-
-          logic.reducers[key] = (state = logic.defaults[key], payload: any) => {
-            const result = defaultReducer(state, payload)
-            if (storageCache[path] !== result) {
-              storageCache[path] = result
-              storageEngine[path] = JSON.stringify(result)
-            }
-            return result
-          }
-          logic.cache.localStorage[key] = true
-        })
+        setPluginContext('localStorage', { storageCache: {}, storageEngine, prefix, separator })
       },
     },
   }
 }
 
+export function persistentReducers<L extends Logic = Logic>(
+  input: PersistentReducerDefinitions<L> | ((logic: L) => PersistentReducerDefinitions<L>),
+) {
+  return (logic) => {
+    const { storageCache, storageEngine, prefix, separator } = getPluginContext('localStorage')
+
+    if (!storageEngine) {
+      throw new Error(`[KEA] LocalStorage plugin requires a "storageEngine"`)
+    }
+    if (logic.pathString.indexOf('kea.logic.') === 0) {
+      throw new Error('[KEA] Logic must have a unique path to persist reducers')
+    }
+
+    logic.cache.localStorage ??= {} as Record<string, boolean>
+    logic.cache.localStorageDefaults ??= {}
+
+    const reducersInput = typeof input === 'function' ? input(logic) : input
+
+    for (const [key, opts] of Object.entries(reducersInput)) {
+      let _prefix = prefix
+      let _separator = separator
+      if (Array.isArray(opts) && opts.length === 3) {
+        _prefix = opts[1].prefix || _prefix
+        _separator = opts[1].separator || _separator
+      }
+      let _reducers: ReducerActions<L, any> = Array.isArray(opts)
+        ? opts.length > 1
+          ? opts[opts.length - 1]
+          : {}
+        : opts
+      let _default = Array.isArray(opts) ? opts[0] : null
+
+      const path = `${_prefix ? _prefix + _separator : ''}${logic.path.join(_separator)}${_separator}${key}`
+      logic.cache.localStorageDefaults[key] = logic.defaults[key] ?? _default
+
+      defaults({ [key]: _default ?? null })(logic)
+
+      if (typeof storageEngine[path] !== 'undefined') {
+        logic.defaults[key] = JSON.parse(storageEngine[path])
+      }
+
+      storageCache[path] = logic.defaults[key]
+
+      const reducerActions = {}
+      for (const [key, reducer] of Object.entries(_reducers)) {
+        reducerActions[key] = (state, payload) => {
+          const result = reducer(state, payload)
+          if (storageCache[path] !== result) {
+            storageCache[path] = result
+            storageEngine[path] = JSON.stringify(result)
+          }
+          return result
+        }
+      }
+      reducers({ [key]: reducerActions })(logic)
+      logic.cache.localStorage[key] = true
+    }
+  }
+}

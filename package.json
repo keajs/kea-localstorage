@@ -34,7 +34,7 @@
     "install"
   ],
   "peerDependencies": {
-    "kea": ">= 2.4.0"
+    "kea": ">= 3"
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",
@@ -58,7 +58,7 @@
     "eslint-plugin-react": "^7.19.0",
     "jest": "^27.0.5",
     "jest-environment-node-debug": "^2.0.0",
-    "kea": "^2.4.3",
+    "kea": "^3.0.0-alpha.3",
     "prettier": "^2.3.2",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",

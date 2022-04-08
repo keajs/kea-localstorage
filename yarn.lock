@@ -3604,10 +3604,10 @@ json5@^1.0.1:
     array-includes "^3.1.2"
     object.assign "^4.1.2"
 
-kea@^2.4.3:
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/kea/-/kea-2.4.3.tgz#c3e1ba52ffc7f70ea32b86ad374abe881b690338"
-  integrity sha512-S2s2Vc488sRjHo+sNbbw7BeBpgV+YdKsTgyZK+za4m0INWqQBmZng0iNKR1aXXNarWFGvoNPyKt4wZSVi6vBnQ==
+kea@^3.0.0-alpha.3:
+  version "3.0.0-alpha.3"
+  resolved "https://registry.yarnpkg.com/kea/-/kea-3.0.0-alpha.3.tgz#6c11929d7dff9ba384478f12b794fbbba525aecf"
+  integrity sha512-V/PNLk88pmXoLGRp9BKpil500Xwt3SjwIZzkpklwt0oudush4EuEKu3g5zeiRSEAmeKhg/SxipsJmt0SX9SICg==
 
 kleur@^3.0.3:
   version "3.0.3"

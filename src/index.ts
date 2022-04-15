@@ -6,7 +6,7 @@ import {
   ReducerActions,
   ReducerDefault,
   setPluginContext,
-  defaults,
+  LogicBuilder,
 } from 'kea'
 
 export interface LocalStoragePluginOptions {
@@ -57,15 +57,24 @@ export const localStoragePlugin = (pluginOptions: Partial<LocalStoragePluginOpti
       afterPlugin() {
         setPluginContext('localStorage', { storageCache: {}, storageEngine, prefix, separator })
       },
+      afterLogic(logic, input) {
+        for (const [key, reducerOptions] of Object.entries(logic.reducerOptions)) {
+          if (reducerOptions?.persist) {
+            persistentReducers({ [key]: {} })(logic)
+          }
+        }
+      },
     },
   }
 }
 
-export function persistentReducers<L extends Logic = Logic>(
-  input: PersistentReducerDefinitions<L> | ((logic: L) => PersistentReducerDefinitions<L>),
-) {
+export function persistReducer<L extends Logic>(key: keyof L['reducers']): LogicBuilder<L> {
   return (logic) => {
-    const { storageCache, storageEngine, prefix, separator } = getPluginContext('localStorage')
+    const key_ = key as string
+    const { storageCache, storageEngine, prefix: __prefix, separator: __separator } = getPluginContext('localStorage')
+    const prefix = logic.reducerOptions[key_]?.prefix || __prefix
+    const separator = logic.reducerOptions[key_]?.separator || __separator
+    const path = `${prefix ? prefix + separator : ''}${logic.path.join(separator)}${separator}${key}`
 
     if (!storageEngine) {
       throw new Error(`[KEA] LocalStorage plugin requires a "storageEngine"`)
@@ -76,47 +85,37 @@ export function persistentReducers<L extends Logic = Logic>(
 
     logic.cache.localStorage ??= {} as Record<string, boolean>
     logic.cache.localStorageDefaults ??= {}
+    logic.cache.localStorageDefaults[key] ??= logic.defaults[key as any] ?? null
 
-    const reducersInput = typeof input === 'function' ? input(logic) : input
+    if (typeof storageEngine[path] !== 'undefined') {
+      logic.defaults[key as any] = JSON.parse(storageEngine[path])
+    } else {
+      storageEngine[path] = logic.defaults[key as any] ?? null
+    }
+    storageCache[path] = logic.defaults[key as any]
 
-    for (const [key, opts] of Object.entries(reducersInput)) {
-      let _prefix = prefix
-      let _separator = separator
-      if (Array.isArray(opts) && opts.length === 3) {
-        _prefix = opts[1].prefix || _prefix
-        _separator = opts[1].separator || _separator
-      }
-      let _reducers: ReducerActions<L, any> = Array.isArray(opts)
-        ? opts.length > 1
-          ? opts[opts.length - 1]
-          : {}
-        : opts
-      let _default = Array.isArray(opts) ? opts[0] : null
-
-      const path = `${_prefix ? _prefix + _separator : ''}${logic.path.join(_separator)}${_separator}${key}`
-      logic.cache.localStorageDefaults[key] = logic.defaults[key] ?? _default
-
-      defaults({ [key]: _default ?? null })(logic)
-
-      if (typeof storageEngine[path] !== 'undefined') {
-        logic.defaults[key] = JSON.parse(storageEngine[path])
-      }
-
-      storageCache[path] = logic.defaults[key]
-
-      const reducerActions = {}
-      for (const [key, reducer] of Object.entries(_reducers)) {
-        reducerActions[key] = (state, payload) => {
-          const result = reducer(state, payload)
-          if (storageCache[path] !== result) {
-            storageCache[path] = result
-            storageEngine[path] = JSON.stringify(result)
-          }
-          return result
+    const reducer = logic.reducers[key as any]
+    if (reducer) {
+      logic.reducers[key as any] = (state, action) => {
+        const result = reducer(state, action)
+        if (storageCache[path] !== result) {
+          storageCache[path] = result
+          storageEngine[path] = JSON.stringify(result)
         }
+        return result
       }
-      reducers({ [key]: reducerActions })(logic)
-      logic.cache.localStorage[key] = true
+    }
+  }
+}
+
+export function persistentReducers<L extends Logic = Logic>(
+  input: PersistentReducerDefinitions<L> | ((logic: L) => PersistentReducerDefinitions<L>),
+): LogicBuilder<L> {
+  return (logic) => {
+    const reducersInput = typeof input === 'function' ? input(logic) : input
+    reducers(reducersInput)(logic)
+    for (const key of Object.keys(reducersInput)) {
+      persistReducer(key)(logic)
     }
   }
 }

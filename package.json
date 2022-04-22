@@ -1,6 +1,6 @@
 {
   "name": "kea-localstorage",
-  "version": "3.0.0-alpha.1",
+  "version": "3.0.0-alpha.2",
   "description": "Store reducer state in localStorage with Kea",
   "author": "Marius Andra",
   "license": "MIT",

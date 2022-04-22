@@ -88,7 +88,12 @@ export function persistReducer<L extends Logic>(key: keyof L['reducers']): Logic
     logic.cache.localStorageDefaults[key] ??= logic.defaults[key as any] ?? null
 
     if (typeof storageEngine[path] !== 'undefined') {
-      logic.defaults[key as any] = JSON.parse(storageEngine[path])
+      try {
+        logic.defaults[key as any] = JSON.parse(storageEngine[path])
+      } catch (e) {
+        // can't deserialize a value? pretend it never existed
+        storageEngine[path] = undefined
+      }
     } else {
       storageEngine[path] = logic.defaults[key as any] ?? null
     }

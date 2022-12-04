@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## 3.1.0 - 2022-12-04
+
+- Add global `storageKey`
+
+## 3.0.0 - 2022-05-12
+
+- Support Kea 3.0
+
 ## 1.1.2 - 2021-10-19
 
 - Fix package.json paths.

@@ -77,16 +77,15 @@ With the above configuration all persisted reducers will now be save in the path
 ### To use a different prefix/separator locally for specific reducers
 
 ```js
-const someLogic = kea({
-  path: () => ['scenes', 'something', 'foobar'],
+const someLogic = kea([
+  path(['scenes', 'something', 'foobar']),
 
-  reducers: ({ actions }) => ({
-    // somewhere in your kea logic reducers
+  reducers({
     persistedValue: [0, { persist: true, prefix: 'example', separator: '_' }, {
-      [actions.change]: (_, payload) => payload.value
+      changeThing: (_, payload) => payload.value
     }]
-  })
-})
+  }),
+])
 ```
 
 Now the `persistedValue` will not be saved in `scenes.something.foobar`, but in `example_scenes_something_foobar`
@@ -98,4 +97,20 @@ stored in localstorage. In case you need to access the original default, it's st
 
 ```javascript
 logic.cache.localStorageDefaults['reducerKey']
+```
+
+### `storageKey`
+
+Pass a `storageKey`, to override the key used for storage. This allows multiple logics to share the same value. For example
+to have all keyed logics store a reducer globally.
+
+```js
+const someLogic = kea([
+  key(props => props.key), // not used for localstorage, overridden by storageKey
+  reducers(({ actions }) => ({
+    persistedValue: [0, { persist: true, storageKey: 'my.global.key' }, {
+      [actions.change]: (_, payload) => payload.value
+    }]
+  }))
+])
 ```

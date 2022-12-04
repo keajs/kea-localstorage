@@ -1,4 +1,15 @@
-import { kea, resetContext, getContext, getPluginContext, useValues, Provider, actions, path, reducers } from 'kea'
+import {
+  kea,
+  resetContext,
+  getContext,
+  getPluginContext,
+  useValues,
+  Provider,
+  actions,
+  path,
+  reducers,
+  props,
+} from 'kea'
 import { localStoragePlugin, persistentReducers, persistReducer } from '../index' // install the plugin
 
 import React from 'react'
@@ -255,5 +266,37 @@ describe('localstorage', () => {
 
     expect(storageEngine['scenes.persist.index.number']).toBe('55')
     expect(storageEngine['scenes.persist.index.otherNumber']).toBe('55')
+  })
+
+  test('can set persistence key', () => {
+    const storageEngine = {} as any
+
+    resetContext({
+      createStore: true,
+      plugins: [localStoragePlugin({ storageEngine })],
+    })
+
+    const anotherLogicWithStorage = kea([
+      path(['scenes', 'persist', 'index']),
+      props({} as { persistKey: string }),
+      actions({
+        setNumber: (number) => ({ number }),
+      }),
+      reducers(({ props }) => ({
+        number: [
+          12,
+          { persist: true, storageKey: `global.storageKey.${props.persistKey}` },
+          {
+            setNumber: (_, payload) => payload.number,
+          },
+        ],
+      })),
+    ])
+
+    anotherLogicWithStorage({ persistKey: 'banana' }).mount()
+
+    expect(getPluginContext('localStorage').storageEngine).toBeDefined()
+    expect(getPluginContext('localStorage').storageEngine).toBe(storageEngine)
+    expect(storageEngine['global.storageKey.banana']).toEqual(12)
   })
 })

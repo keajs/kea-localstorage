@@ -31,6 +31,7 @@ export type PersistenceOptions = {
   persist?: true
   prefix?: string
   separator?: string
+  storageKey?: string
 }
 
 export type PersistentReducerDefinitions<L extends Logic> = {
@@ -74,7 +75,8 @@ export function persistReducer<L extends Logic>(key: keyof L['reducers']): Logic
     const { storageCache, storageEngine, prefix: __prefix, separator: __separator } = getPluginContext('localStorage')
     const prefix = logic.reducerOptions[key_]?.prefix || __prefix
     const separator = logic.reducerOptions[key_]?.separator || __separator
-    const path = `${prefix ? prefix + separator : ''}${logic.path.join(separator)}${separator}${key}`
+    const storageKey = logic.reducerOptions[key_]?.storageKey || [...logic.path, key].join(separator)
+    const path = `${prefix ? prefix + separator : ''}${storageKey}`
 
     if (!storageEngine) {
       throw new Error(`[KEA] LocalStorage plugin requires a "storageEngine"`)
